@@ -10,7 +10,8 @@ let create = document.getElementById('create');
 let byTitle = document.getElementById('byTitle');
 let byCategory = document.getElementById('byCategory');
 
-
+let mood = 'Create';
+let pesudoI;
 
 //get total
 
@@ -35,34 +36,41 @@ if (localStorage.product != null) {
   dataPro = [];
 }
 
-create.onclick = _=> {
+create.onclick = function() {
   let newProduct = {
-    title: title.value,
+    title: title.value.toLowerCase(),
     price: price.value,
     tax: tax.value,
     ads: ads.value,
     discount: discount.value,
     total: total.innerHTML,
     count: count.value,
-    category: category.value,
+    category: category.value.toLowerCase(),
   }
 
 // count creating product
 
-  if (newProduct.count > 1) {
-    for(let i=0; i<newProduct.count; i++) {
-      dataPro.push(newProduct);
+  if(title.value != '' && price.value != '' && category.value != '' && newProduct.count < 100){
+    if (mood === 'Create'){
+      if (newProduct.count > 1) {
+        for(let i=0; i<newProduct.count; i++) {
+          dataPro.push(newProduct);
+        }
+      }else{
+        dataPro.push(newProduct);
+      }
+    }else {
+      dataPro[pesudoI] = newProduct;
+      count.style.display = 'block';
+      create.innerHTML = 'Create';
     }
-  }else if (newProduct.count == 1) {
-    dataPro.push(newProduct);
-  }else {
-    return console.log(`<p>There's No Item.</p>`);
+    // clear inputs data
+    clearData();
   }
   // save localstorage
   localStorage.setItem('product', JSON.stringify(dataPro));
   // console.log(dataPro)
-  // clear inputs data
-  clearData();
+
 
   // show products data
   showData();
@@ -97,6 +105,7 @@ function showData() {
         <td><button onclick="deleteItem(${i})" id="delete">delete</button></td>
       </tr>
     `
+    getTotal();
   }
 
   document.getElementById('tbody').innerHTML = table;
@@ -117,8 +126,26 @@ function showData() {
 showData()
 
 // update
-// delete
+function updateItem(i) {
+  title.value = dataPro[i].title;
+  price.value = dataPro[i].price;
+  tax.value = dataPro[i].tax;
+  ads.value = dataPro[i].ads;
+  discount.value = dataPro[i].discount;
+  getTotal();
+  count.style.display = 'none';
+  category.value = dataPro[i].category;
+  create.innerHTML = 'Update';
+  mood = 'update';
+  pesudoI = i;
+  scroll({
+    top: 0,
+    behavior: 'smooth',
+  })
+}
 
+
+// delete
 function deleteItem(i) {
   dataPro.splice(i,1);
   localStorage.product = JSON.stringify(dataPro);
@@ -132,4 +159,71 @@ function deleteAll() {
   showData();
 }
 // search
+let searchMood = 'title';
+
+function getSearchId(id) {
+  let search = document.querySelector('#search');
+  if (id == 'byTitle') {
+    searchMood = 'title';
+    byCategory.style.backgroundColor = '';
+    byTitle.style.backgroundColor = '#f90';
+    
+  }else {
+    byTitle.style.backgroundColor = '';
+    byCategory.style.backgroundColor = '#f90';
+    searchMood = 'category';
+  }
+  search.placeholder = 'Search By ' + searchMood.toUpperCase();
+  search.focus()
+  search.value = '';
+  showData();
+}
+
+/////////////
+
+function searchItem(value) {
+  let table = '';
+  for(let i=0; i<dataPro.length; i++){
+    if(searchMood == 'title') {
+        if(dataPro[i].title.includes(value.toLowerCase())){
+          table += `
+            <tr>
+              <td>${i +1}</td>
+              <td>${dataPro[i].title}</td>
+              <td>${dataPro[i].price}</td>
+              <td>${dataPro[i].tax}</td>
+              <td>${dataPro[i].ads}</td>
+              <td>${dataPro[i].discount}</td>
+              <td>${dataPro[i].total}</td>
+              <td>${dataPro[i].category}</td>
+              <td><button onclick="updateItem(${i})" id="update">update</button></td>
+              <td><button onclick="deleteItem(${i})" id="delete">delete</button></td>
+            </tr>
+        `
+        }
+      
+    }else {
+        if(dataPro[i].category.includes(value.toLowerCase())){
+          table += `
+            <tr>
+              <td>${i +1}</td>
+              <td>${dataPro[i].title}</td>
+              <td>${dataPro[i].price}</td>
+              <td>${dataPro[i].tax}</td>
+              <td>${dataPro[i].ads}</td>
+              <td>${dataPro[i].discount}</td>
+              <td>${dataPro[i].total}</td>
+              <td>${dataPro[i].category}</td>
+              <td><button onclick="updateItem(${i})" id="update">update</button></td>
+              <td><button onclick="deleteItem(${i})" id="delete">delete</button></td>
+            </tr>
+        `
+        }
+      
+    }
+  }
+  document.getElementById('tbody').innerHTML = table;
+  
+}
+
 // clean data

@@ -39,10 +39,10 @@
             <input type="text" placeholder="count" id="count">
             <input type="text" placeholder="category" id="category">
             <button id="create" >Create</button>
-            <input type="search" placeholder="Search">
+            <input onkeyup="searchItem(this.value)" id="search" type="search" placeholder="Search">
             <div class="search-box">
-              <button id="byTitle" >Search By Title</button>
-              <button id="byCategory" >Search By Category</button>
+              <button onclick="getSearchId(this.id)" id="byTitle" >Search By Title</button>
+              <button onclick="getSearchId(this.id)" id="byCategory" >Search By Category</button>
             </div>
           </form>
         </div>
